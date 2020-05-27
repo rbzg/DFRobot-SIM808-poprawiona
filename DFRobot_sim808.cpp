@@ -1053,13 +1053,26 @@ bool DFRobot_SIM808::getGPS()
     char *longdir = strtok(NULL, ",");
     if (! longdir) return false;
 
+    int lattemp, lontemp;
+    float lat, lon;
     float latitude = atof(latp);
     float longitude = atof(longp);
 
-	GPSdata.lat = latitude/100;
+    // convert latitude from minutes to decimal 
+    lattemp = latitude / 100;
+    lat = ((latitude / 100) - lattemp) * 100;
+    lat /= 60;
+    lat += lattemp;
+    if(*latdir == 'S') lat *= -1;
+    GPSdata.lat = lat;
 
     // convert longitude from minutes to decimal  
-	GPSdata.lon= longitude/100;
+    lontemp = longitude / 100;
+    lon = ((longitude / 100) - lontemp) * 100;
+    lon /= 60;
+    lon += lontemp;
+    if(*longdir == 'W') lon *= -1;
+    GPSdata.lon= lon;
 
     // only grab speed if needed                  //<7> 地面速率(000.0~999.9节，前面的0也将被传输)
    // if (speed_kph != NULL) {
@@ -1070,7 +1083,7 @@ bool DFRobot_SIM808::getGPS()
 
       // convert to kph
       //*speed_kph = atof(speedp) * 1.852;
-	  GPSdata.speed_kph= atof(speedp) * 1.852;
+	  GPSdata.speed_kph= atof(speedp) / 1.852;
 
    // }
 
